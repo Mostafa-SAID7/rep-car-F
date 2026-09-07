@@ -1,0 +1,1 @@
+- [GitHub sync limitations](github-sync.md) — connector writes and normal git remotes use different credential paths; verify endpoint support before publishing.

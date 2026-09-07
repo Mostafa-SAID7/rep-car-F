@@ -1,11 +1,11 @@
 
 import React, { useState, useCallback } from 'react';
-import { findCarParts } from '../services/geminiService';
+import { findCarParts } from '../features/ai/api/geminiService';
 import Card, { CardContent, CardHeader, CardTitle } from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { useNotifications } from '../context/NotificationContext';
-import { NotificationType } from '../types';
+import { NotificationType, SearchSource } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { marked } from 'marked';
@@ -14,7 +14,7 @@ import { styles } from '../styles';
 
 const FindParts: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [result, setResult] = useState<{ text: string; sources: any[] } | null>(null);
+  const [result, setResult] = useState<{ markdown: string; sources: SearchSource[] } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { addNotification } = useNotifications();
 
@@ -30,9 +30,8 @@ const FindParts: React.FC = () => {
 
     try {
       const response = await findCarParts(query);
-      const markdownText = await marked.parse(response.text);
-      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-      setResult({ text: markdownText, sources: groundingChunks });
+      const markdownText = await marked.parse(response.markdown);
+      setResult({ markdown: markdownText, sources: response.sources });
     } catch (error) {
       console.error('Find parts error:', error);
       addNotification('Failed to find parts. Please try again.', NotificationType.Error);
@@ -83,22 +82,22 @@ const FindParts: React.FC = () => {
           <CardContent>
             <div
               className={`${styles.prose} mb-6`}
-              dangerouslySetInnerHTML={{ __html: result.text }}
+              dangerouslySetInnerHTML={{ __html: result.markdown }}
             />
             {result.sources.length > 0 && (
                 <div>
                     <h4 className="border-t border-border pt-5 text-sm font-semibold uppercase tracking-[0.1em] text-muted-foreground">Sources</h4>
                     <ul className="mt-3 space-y-2">
                         {result.sources.map((chunk, index) => (
-                            chunk.web && (
+                            chunk.type === 'web' && (
                                 <li key={index}>
                                     <a
-                                        href={chunk.web.uri}
+                                         href={chunk.uri}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-sm font-medium text-primary hover:underline"
                                     >
-                                        {chunk.web.title}
+                                         {chunk.title}
                                     </a>
                                 </li>
                             )

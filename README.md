@@ -1,20 +1,99 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Auto AI
 
-# Run and deploy your AI Studio app
+> A focused vehicle-care workspace for understanding problems, planning maintenance, and finding the next best repair step.
 
-This contains everything you need to run your app locally.
+Auto AI brings the most common car-care decisions into one calm, guided interface. Drivers can describe a problem, generate a maintenance schedule, find DIY guidance, search for parts, and discover nearby shops without jumping between disconnected tools.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1wPh8ybrUVXS0zAu9g5xPUa0CbxHEabSf
+## What it does
 
-## Run Locally
+- **AI diagnostics** — describe a symptom and optionally attach a photo for a structured report
+- **Maintenance schedules** — generate a mileage-based plan for a specific vehicle
+- **DIY guides** — get step-by-step repair and maintenance guidance with safety notes
+- **Parts finder** — search the web for current parts information and purchasing sources
+- **Shop finder** — search nearby repair shops and parts stores using location context
+- **Profile workspace** — save local driver and vehicle preferences for this browser
+- **AI assistant** — ask follow-up car-care questions in a persistent chat panel
 
-**Prerequisites:**  Node.js
+## Product focus
 
+Auto AI is designed around one simple outcome: **help a driver move from uncertainty to a clear, safer next step**.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+The interface keeps each workflow focused, returns structured results where possible, and uses shared navigation, theme, notifications, and responsive layout primitives so the experience stays consistent as the product grows.
+
+## Stack
+
+- React 19
+- TypeScript
+- Vite
+- React Router
+- Tailwind CSS v4
+- Google Gemini via `@google/genai`
+- pnpm
+
+## Run locally
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm 10+
+- A Gemini API key for AI-powered workflows
+
+### Setup
+
+```bash
+pnpm install
+```
+
+Create `.env.local`:
+
+```bash
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Never commit `.env.local` or expose an API key in an issue, pull request, or chat message. In Replit, store the key in Secrets instead of a file.
+
+Start the development server:
+
+```bash
+pnpm dev
+```
+
+Open the Vite preview at `http://localhost:5000`.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Start the Vite development server |
+| `pnpm typecheck` | Run TypeScript without emitting files |
+| `pnpm build` | Create a production build |
+| `pnpm preview` | Serve the production build locally |
+
+## Project map
+
+```text
+app/                         Route and navigation composition
+components/                  Shared layout and UI components
+context/                     Cross-cutting React providers
+features/ai/api/             Gemini adapter and app-owned AI contracts
+pages/                       Route-level screens
+services/                    Compatibility entry points for integrations
+docs/                        Architecture and contributor documentation
+.github/                     CI, issue templates, and repository automation
+```
+
+Read the documentation hub in [`docs/README.md`](docs/README.md) for the architecture, development conventions, and AI integration notes.
+
+## AI and deployment note
+
+The current Vite setup injects `GEMINI_API_KEY` into the browser bundle so the imported prototype can call Gemini directly. That is convenient for local development, but it is not the preferred security boundary for a public production application.
+
+Before a public launch, move Gemini calls behind a server-side API or trusted backend function. See [`docs/ai-features.md`](docs/ai-features.md) for the current behavior and migration boundary.
+
+## Contributing
+
+Keep changes focused on the driver outcome, preserve the existing React/Vite stack, and run both `pnpm typecheck` and `pnpm build` before opening a pull request. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## License
+
+No license has been selected for this repository yet. Until one is added, the source should be treated as all rights reserved.

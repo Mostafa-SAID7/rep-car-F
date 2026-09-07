@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { generateMaintenanceSchedule } from '../services/geminiService';
+import { generateMaintenanceSchedule } from '../features/ai/api/geminiService';
 import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -32,8 +32,7 @@ const MaintenanceSchedule: React.FC = () => {
 
     try {
       const response = await generateMaintenanceSchedule(make, model, parseInt(year), parseInt(mileage));
-      const jsonText = response.text.trim();
-      setSchedule(JSON.parse(jsonText));
+      setSchedule(response);
     } catch (error) {
       console.error('Schedule generation error:', error);
       addNotification('Failed to generate schedule. Please try again.', NotificationType.Error);

@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { getDiagnostics } from '../services/geminiService';
+import { getDiagnostics } from '../features/ai/api/geminiService';
 import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import Textarea from '../components/Textarea';
 import Button from '../components/Button';
@@ -40,9 +40,7 @@ const Diagnostics: React.FC = () => {
 
     try {
       const response = await getDiagnostics(problem, image || undefined);
-      const jsonText = response.text.trim();
-      const parsedResult: DiagnosticResult = JSON.parse(jsonText);
-      setResult(parsedResult);
+      setResult(response);
     } catch (error) {
       console.error('Diagnostics error:', error);
       addNotification('Failed to get diagnostics. Please try again.', NotificationType.Error);

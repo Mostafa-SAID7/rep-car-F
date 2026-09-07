@@ -1,35 +1,32 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Chat } from "@google/genai";
 import { ICONS } from '../constants';
-import { ChatMessage } from '../types';
+import { ChatMessage, ChatSession } from '../types';
 import { marked } from 'marked';
 import LoadingSpinner from './LoadingSpinner';
 import { cx, styles } from '../styles';
+import { createChatSession } from '../features/ai/api/geminiService';
 
-const Chatbot: React.FC = () => {
+interface ChatbotProps {
+    isNavigationOpen?: boolean;
+}
+
+const Chatbot: React.FC<ChatbotProps> = ({ isNavigationOpen = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const chatRef = useRef<Chat | null>(null);
+    const chatRef = useRef<ChatSession | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
-
-        if (!apiKey) {
+        const chatSession = createChatSession();
+        if (!chatSession) {
             setMessages([{ role: 'model', text: 'The AI assistant is currently unavailable because Gemini is not configured.' }]);
             return;
         }
 
-        const ai = new GoogleGenAI({ apiKey });
-        chatRef.current = ai.chats.create({
-            model: 'gemini-2.5-flash-lite',
-            config: {
-                systemInstruction: 'You are a friendly and helpful car maintenance assistant chatbot. Your responses should be concise and formatted in markdown.',
-            },
-        });
+        chatRef.current = chatSession;
         setMessages([{ role: 'model', text: 'Hello! How can I help you with your car today?' }]);
     }, []);
 
@@ -54,7 +51,7 @@ const Chatbot: React.FC = () => {
         setIsLoading(true);
 
         try {
-            const stream = await chatRef.current.sendMessageStream({ message: currentInput });
+            const stream = chatRef.current.sendMessageStream(currentInput);
             
             let modelResponse = '';
             setMessages(prev => [...prev, { role: 'model', text: '...' }]);
@@ -76,7 +73,7 @@ const Chatbot: React.FC = () => {
     };
     
     const ChatWindow = () => (
-        <div className="fixed bottom-24 right-4 z-50 flex h-[min(34rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_70px_rgba(23,23,23,0.18)] sm:right-6">
+        <div className="motion-fade-in fixed bottom-24 right-4 z-50 flex h-[min(34rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_70px_rgba(23,23,23,0.18)] sm:right-6">
             <header className="flex items-center justify-between bg-[#171717] p-5 text-white">
                 <div>
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">Always on call</p>
@@ -127,15 +124,19 @@ const Chatbot: React.FC = () => {
 
     return (
         <>
-            {isOpen && <ChatWindow />}
-            <button
-              type="button"
-              onClick={() => setIsOpen(!isOpen)}
-              className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_28px_rgba(255,105,77,0.3)] transition-transform duration-300 hover:-translate-y-1"
-              aria-label="Toggle chat"
-            >
-              {isOpen ? ICONS.close : ICONS.chat}
-            </button>
+            {!isNavigationOpen && (
+              <>
+                {isOpen && <ChatWindow />}
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="motion-fab fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_28px_rgba(255,105,77,0.3)]"
+                  aria-label="Toggle chat"
+                >
+                  {isOpen ? ICONS.close : ICONS.chat}
+                </button>
+              </>
+            )}
         </>
     );
 };

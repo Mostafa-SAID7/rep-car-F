@@ -27,7 +27,29 @@ export interface MaintenanceScheduleResult {
   schedule: MaintenanceTask[];
 }
 
+export interface GeoLocation {
+  latitude: number;
+  longitude: number;
+}
+
+export type SearchSourceType = 'web' | 'maps';
+
+export interface SearchSource {
+  title: string;
+  uri: string;
+  type: SearchSourceType;
+}
+
+export interface SearchResult {
+  markdown: string;
+  sources: SearchSource[];
+}
+
 export interface ChatMessage {
     role: 'user' | 'model';
     text: string;
+}
+
+export interface ChatSession {
+  sendMessageStream: (message: string) => AsyncIterable<string>;
 }

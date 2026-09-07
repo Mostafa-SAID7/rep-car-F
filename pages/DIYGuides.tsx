@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { getDIYGuide } from '../services/geminiService';
+import { getDIYGuide } from '../features/ai/api/geminiService';
 import Card, { CardContent, CardHeader, CardTitle } from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -30,7 +30,7 @@ const DIYGuides: React.FC = () => {
 
     try {
       const response = await getDIYGuide(topic);
-      const markdownText = await marked.parse(response.text);
+      const markdownText = await marked.parse(response);
       setGuide(markdownText);
     } catch (error) {
       console.error('Guide generation error:', error);

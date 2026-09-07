@@ -1,11 +1,11 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { findShops } from '../services/geminiService';
+import { findShops } from '../features/ai/api/geminiService';
 import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { useNotifications } from '../context/NotificationContext';
-import { NotificationType } from '../types';
+import { NotificationType, SearchSource } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { marked } from 'marked';
@@ -14,7 +14,7 @@ import { styles } from '../styles';
 
 const FindShops: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [result, setResult] = useState<{ text: string; sources: any[] } | null>(null);
+  const [result, setResult] = useState<{ markdown: string; sources: SearchSource[] } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -62,10 +62,9 @@ const FindShops: React.FC = () => {
     setResult(null);
 
     try {
-      const response = await findShops(query, location);
-      const markdownText = await marked.parse(response.text);
-      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-      setResult({ text: markdownText, sources: groundingChunks });
+       const response = await findShops(query, location);
+       const markdownText = await marked.parse(response.markdown);
+       setResult({ markdown: markdownText, sources: response.sources });
     } catch (error) {
       console.error('Find shops error:', error);
       addNotification('Failed to find shops. Please try again.', NotificationType.Error);
@@ -95,7 +94,7 @@ const FindShops: React.FC = () => {
               {isLoading ? <LoadingSpinner /> : 'Search Nearby'}
             </Button>
           </form>
-            {locationError && <p className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{locationError}</p>}
+            {locationError && <p className="mt-3 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">{locationError}</p>}
             {!location && !locationError && <p className="mt-3 text-sm text-muted-foreground">Getting your location...</p>}
         </CardContent>
       </Card>
@@ -118,22 +117,22 @@ const FindShops: React.FC = () => {
           <CardContent>
             <div
               className={`${styles.prose} mb-6`}
-              dangerouslySetInnerHTML={{ __html: result.text }}
+              dangerouslySetInnerHTML={{ __html: result.markdown }}
             />
             {result.sources.length > 0 && (
                 <div>
                     <h4 className="border-t border-border pt-5 text-sm font-semibold uppercase tracking-[0.1em] text-muted-foreground">Places on Google Maps</h4>
                     <ul className="mt-3 space-y-2">
                         {result.sources.map((chunk, index) => (
-                             chunk.maps && (
+                             chunk.type === 'maps' && (
                                 <li key={index}>
                                     <a
-                                        href={chunk.maps.uri}
+                                         href={chunk.uri}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-sm font-medium text-primary hover:underline"
                                     >
-                                        {chunk.maps.title}
+                                         {chunk.title}
                                     </a>
                                 </li>
                             )

@@ -6,44 +6,21 @@ import { ICONS } from '../constants';
 import PageHeader from '../components/PageHeader';
 import Button from '../components/Button';
 import { styles } from '../styles';
+import { navigationItems } from '../app/navigation';
 
-const features = [
-    {
-        title: 'AI Diagnostics',
-        description: 'Describe your car\'s issue, upload a photo, and get instant diagnostic help.',
-        link: '/diagnostics',
-        icon: ICONS.diagnostics,
-    },
-    {
-        title: 'Maintenance Schedules',
-        description: 'Generate a personalized maintenance schedule for your vehicle.',
-        link: '/schedule',
-        icon: ICONS.schedule,
-    },
-    {
-        title: 'DIY Repair Guides',
-        description: 'Find step-by-step guides for common repairs and maintenance tasks.',
-        link: '/guides',
-        icon: ICONS.guides,
-    },
-    {
-        title: 'Find Parts',
-        description: 'Search for up-to-date car parts information and purchasing options online.',
-        link: '/parts',
-        icon: ICONS.parts,
-    },
-    {
-        title: 'Find Local Shops',
-        description: 'Locate nearby repair shops, dealerships, and part stores using your location.',
-        link: '/shops',
-        icon: ICONS.shops,
-    }
-];
+const features = navigationItems
+  .filter((item) => item.to !== '/')
+  .map((item) => ({
+    title: item.cardTitle ?? item.label,
+    description: item.cardDescription ?? '',
+    link: item.to,
+    icon: item.icon,
+  }));
 
 const Dashboard: React.FC = () => {
   return (
     <div className="space-y-8">
-      <section className="relative overflow-hidden rounded-[1.75rem] bg-[#171717] p-7 text-white shadow-[0_18px_50px_rgba(23,23,23,0.14)] sm:p-10">
+      <section className="sidebar-surface relative overflow-hidden rounded-[1.75rem] p-6 text-white shadow-[0_18px_50px_rgba(23,23,23,0.14)] sm:p-10">
         <div className="relative z-10 max-w-2xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/75">
             <span className="h-2 w-2 rounded-full bg-primary" /> Your vehicle workspace
@@ -69,11 +46,11 @@ const Dashboard: React.FC = () => {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="motion-stagger grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          ['Vehicle status', 'Ready for the road', 'bg-emerald-50 text-emerald-700'],
-          ['Next service', '1,240 mi away', 'bg-orange-50 text-orange-700'],
-          ['Saved guides', '12 resources', 'bg-violet-50 text-violet-700'],
+           ['Vehicle status', 'Ready for the road', 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'],
+           ['Next service', '1,240 mi away', 'bg-orange-500/10 text-orange-700 dark:text-orange-300'],
+           ['Saved guides', '12 resources', 'bg-violet-500/10 text-violet-700 dark:text-violet-300'],
         ].map(([label, value, badge]) => (
           <div key={label} className={`${styles.card} flex items-start justify-between gap-3 p-5 sm:items-center`}>
             <div>
@@ -93,10 +70,10 @@ const Dashboard: React.FC = () => {
         <span className="hidden text-sm text-muted-foreground sm:block">5 tools available</span>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="motion-stagger grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {features.map((feature) => (
             <Link to={feature.link} key={feature.title} className="group">
-                <Card className="h-full transition duration-300 group-hover:-translate-y-1 group-hover:border-primary/30 group-hover:shadow-[0_18px_40px_rgba(255,105,77,0.1)]">
+                <Card className="h-full transition-[transform,box-shadow,border-color] duration-300 group-hover:-translate-y-1 group-hover:border-primary/30 group-hover:shadow-[0_18px_40px_rgba(255,105,77,0.1)]">
                     <CardHeader className="flex-row items-start justify-between">
                          <div className={styles.iconBox}>{feature.icon}</div>
                          <span className="text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary">↗</span>
